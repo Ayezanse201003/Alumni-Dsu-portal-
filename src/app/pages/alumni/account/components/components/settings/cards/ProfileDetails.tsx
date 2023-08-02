@@ -1,44 +1,69 @@
-import React, {ChangeEvent, useRef, useState} from 'react'
-import {toAbsoluteUrl} from '../../../../../../../../_metronic/helpers'
-import {IProfileDetails, profileDetailsInitValues as initialValues} from '../SettingsModel'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { toAbsoluteUrl } from '../../../../../../../../_metronic/helpers'
+import {
+  IProfileDetails,
+  IProfileDetails2,
+  profileDetailsInitValues2 as initialValues,
+} from '../SettingsModel'
 import * as Yup from 'yup'
-import {useFormik} from 'formik'
+import { useFormik } from 'formik'
+import axios from 'axios'
 
 const profileDetailsSchema = Yup.object().shape({
-  fName: Yup.string().required('First name is required'),
-  lName: Yup.string().required('Last name is required'),
-  ffName: Yup.string().required('First name is required'),
-  gender: Yup.string().required('Gender is required'),
+  fisrt_name: Yup.string().required('First name is required'),
+  last_name: Yup.string().required('Last name is required'),
+  // ffName: Yup.string().required('First name is required'),
+  // gender: Yup.string().required('Gender is required'),
   country: Yup.string().required('Country is required'),
   email: Yup.string().required('Email is required'),
-  CNIC: Yup.string().required('CNIC is required'),
-  contactPhone: Yup.string().required('Contact phone is required'),
-  company: Yup.string().required('Company name is required'),
-  DOB: Yup.string().required('DOB  is required'),
-  language: Yup.string().required('Language is required'),
-  timeZone: Yup.string().required('Time zone is required'),
-  currency: Yup.string().required('Currency is required'),
+  // CNIC: Yup.string().required('CNIC is required'),
+  phone: Yup.string().required('Contact phone is required'),
+  // company: Yup.string().required('Company name is required'),
+  date_of_birth: Yup.string().required('date_of_birth  is required'),
+  // language: Yup.string().required('Language is required'),
+  timezone: Yup.string().required('Time zone is required'),
+  // currency: Yup.string().required('Currency is required'),
 })
 
 const ProfileDetails: React.FC = () => {
-  const [data, setData] = useState<IProfileDetails>(initialValues)
-  const updateData = (fieldsToUpdate: Partial<IProfileDetails>): void => {
+  const [data, setData] = useState<IProfileDetails2>(initialValues)
+  const updateData = (fieldsToUpdate: Partial<IProfileDetails2>): void => {
     const updatedData = Object.assign(data, fieldsToUpdate)
     setData(updatedData)
   }
 
+  const fetchAcademicsByUserId = async (userId: number) => {
+    try {
+      const response = await axios.get(
+        `https://amsbackend-ghub.onrender.com/users/${userId}/profile`
+      )
+      const userData = response.data
+      updateData(userData)
+
+      setData(userData);
+      console.log(userData, data)
+      // setUsers(userData)
+    } catch (error) {
+      console.error(error) // Handle any errors that occur during the request.
+    }
+  }
+
+  useEffect(() => {
+    fetchAcademicsByUserId(93)
+  }, [])
+
   const [loading, setLoading] = useState(false)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const iref = useRef<HTMLInputElement>(null)
-  const formik = useFormik<IProfileDetails>({
-    initialValues,
+  const formik = useFormik<IProfileDetails2>({
+    initialValues: data,
     validationSchema: profileDetailsSchema,
     onSubmit: (values) => {
       setLoading(true)
       setTimeout(() => {
-        values.communications.email = data.communications.email
-        values.communications.phone = data.communications.phone
-        values.allowMarketing = data.allowMarketing
+        // values.communications.email = data.communications.email
+        // values.communications.phone = data.communications.phone
+        // values.allowMarketing = data.allowMarketing
         const updatedData = Object.assign(data, values)
         setData(updatedData)
         setLoading(false)
@@ -64,7 +89,7 @@ const ProfileDetails: React.FC = () => {
       <div id='kt_account_profile_details' className='collapse show'>
         <form onSubmit={formik.handleSubmit} noValidate className='form'>
           <div className='card-body border-top p-9'>
-            <div className='row mb-6'>
+            {/* <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>Avatar</label>
               <div className='col-lg-8'>
                 <div
@@ -99,7 +124,7 @@ const ProfileDetails: React.FC = () => {
                 }}
                 hidden={true}
               />
-            </div>
+            </div> */}
 
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>Full Name</label>
@@ -111,11 +136,11 @@ const ProfileDetails: React.FC = () => {
                       type='text'
                       className='form-control form-control-lg form-control-solid mb-3 mb-lg-0'
                       placeholder='First name'
-                      {...formik.getFieldProps('fName')}
+                      {...formik.getFieldProps('first_name')}
                     />
-                    {formik.touched.fName && formik.errors.fName && (
+                    {formik.touched.first_name && formik.errors.first_name && (
                       <div className='fv-plugins-message-container'>
-                        <div className='fv-help-block'>{formik.errors.fName}</div>
+                        <div className='fv-help-block'>{formik.errors.first_name}</div>
                       </div>
                     )}
                   </div>
@@ -124,11 +149,11 @@ const ProfileDetails: React.FC = () => {
                       type='text'
                       className='form-control form-control-lg form-control-solid'
                       placeholder='Middle name'
-                      {...formik.getFieldProps('mName')}
+                      {...formik.getFieldProps('middle_name')}
                     />
-                    {formik.touched.mName && formik.errors.mName && (
+                    {formik.touched.middle_name && formik.errors.middle_name && (
                       <div className='fv-plugins-message-container'>
-                        <div className='fv-help-block'>{formik.errors.mName}</div>
+                        <div className='fv-help-block'>{formik.errors.middle_name}</div>
                       </div>
                     )}
                   </div>
@@ -138,11 +163,11 @@ const ProfileDetails: React.FC = () => {
                       type='text'
                       className='form-control form-control-lg form-control-solid'
                       placeholder='Last name'
-                      {...formik.getFieldProps('lName')}
+                      {...formik.getFieldProps('last_name')}
                     />
-                    {formik.touched.lName && formik.errors.lName && (
+                    {formik.touched.last_name && formik.errors.last_name && (
                       <div className='fv-plugins-message-container'>
-                        <div className='fv-help-block'>{formik.errors.lName}</div>
+                        <div className='fv-help-block'>{formik.errors.last_name}</div>
                       </div>
                     )}
                   </div>
@@ -150,8 +175,7 @@ const ProfileDetails: React.FC = () => {
               </div>
             </div>
 
-
-            <div className='row mb-6'>
+            {/* <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>Father Name</label>
 
               <div className='col-lg-8'>
@@ -185,10 +209,9 @@ const ProfileDetails: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
-
-            <div className='row mb-6'>
+            {/* <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>Gender</label>
 
               <div className='col-lg-8 fv-row'>
@@ -204,8 +227,7 @@ const ProfileDetails: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
-
+            </div> */}
 
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>
@@ -474,7 +496,6 @@ const ProfileDetails: React.FC = () => {
               </div>
             </div>
 
-
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>Email</label>
 
@@ -493,15 +514,7 @@ const ProfileDetails: React.FC = () => {
               </div>
             </div>
 
-
-            
-
-
-
-
-
-
-            <div className='row mb-6'>
+            {/* <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>Company</label>
 
               <div className='col-lg-8 fv-row'>
@@ -517,11 +530,9 @@ const ProfileDetails: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
 
-
-                  
-            <div className='row mb-6'>
+            {/* <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>CNIC</label>
 
               <div className='col-lg-8 fv-row'>
@@ -537,8 +548,7 @@ const ProfileDetails: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
-
+            </div> */}
 
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>
@@ -550,17 +560,17 @@ const ProfileDetails: React.FC = () => {
                   type='tel'
                   className='form-control form-control-lg form-control-solid'
                   placeholder='Phone number'
-                  {...formik.getFieldProps('contactPhone')}
+                  {...formik.getFieldProps('phone')}
                 />
-                {formik.touched.contactPhone && formik.errors.contactPhone && (
+                {formik.touched.phone && formik.errors.phone && (
                   <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>{formik.errors.contactPhone}</div>
+                    <div className='fv-help-block'>{formik.errors.phone}</div>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className='row mb-6'>
+            {/* <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>
                 <span className='required'>Blood Group</span>
               </label>
@@ -578,8 +588,7 @@ const ProfileDetails: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
-
+            </div> */}
 
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>
@@ -591,20 +600,17 @@ const ProfileDetails: React.FC = () => {
                   type='tel'
                   className='form-control form-control-lg form-control-solid'
                   placeholder='Date of Birth'
-                  {...formik.getFieldProps('DOB')}
+                  {...formik.getFieldProps('date_of_birth')}
                 />
-                {formik.touched.DOB && formik.errors.DOB && (
+                {formik.touched.date_of_birth && formik.errors.date_of_birth && (
                   <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>{formik.errors.DOB}</div>
+                    <div className='fv-help-block'>{formik.errors.date_of_birth}</div>
                   </div>
                 )}
               </div>
             </div>
 
-          
-           
-
-            <div className='row mb-6'>
+            {/* <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>Language</label>
               <div className='col-lg-8 fv-row'>
                 <select
@@ -669,7 +675,7 @@ const ProfileDetails: React.FC = () => {
                   Please select a preferred language, including date, time, and number formatting.
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>Time Zone</label>
@@ -677,7 +683,7 @@ const ProfileDetails: React.FC = () => {
               <div className='col-lg-8 fv-row'>
                 <select
                   className='form-select form-select-solid form-select-lg'
-                  {...formik.getFieldProps('timeZone')}
+                  {...formik.getFieldProps('timezone')}
                 >
                   <option value=''>Select a Timezone..</option>
                   <option value='International Date Line West'>
@@ -834,15 +840,15 @@ const ProfileDetails: React.FC = () => {
                   <option value='Wellington'>(GMT+12:00) Wellington</option>
                   <option value="Nuku'alofa">(GMT+13:00) Nuku'alofa</option>
                 </select>
-                {formik.touched.timeZone && formik.errors.timeZone && (
+                {formik.touched.timezone && formik.errors.timezone && (
                   <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>{formik.errors.timeZone}</div>
+                    <div className='fv-help-block'>{formik.errors.timezone}</div>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className='row mb-6'>
+            {/* <div className='row mb-6'>
               <label className='col-lg-4 col-form-label required fw-bold fs-6'>Currency</label>
 
               <div className='col-lg-8 fv-row'>
@@ -865,9 +871,9 @@ const ProfileDetails: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
 
-            <div className='row mb-6'>
+            {/* <div className='row mb-6'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>Communication</label>
 
               <div className='col-lg-8 fv-row'>
@@ -909,9 +915,9 @@ const ProfileDetails: React.FC = () => {
                   </label>
                 </div>
               </div>
-            </div>
+            </div> */}
 
-            <div className='row mb-0'>
+            {/* <div className='row mb-0'>
               <label className='col-lg-4 col-form-label fw-bold fs-6'>Allow Marketing</label>
 
               <div className='col-lg-8 d-flex align-items-center'>
@@ -928,14 +934,14 @@ const ProfileDetails: React.FC = () => {
                   <label className='form-check-label'></label>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className='card-footer d-flex justify-content-end py-6 px-9'>
             <button type='submit' className='btn btn-primary' disabled={loading}>
               {!loading && 'Save Changes'}
               {loading && (
-                <span className='indicator-progress' style={{display: 'block'}}>
+                <span className='indicator-progress' style={{ display: 'block' }}>
                   Please wait...{' '}
                   <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
                 </span>
@@ -948,4 +954,4 @@ const ProfileDetails: React.FC = () => {
   )
 }
 
-export {ProfileDetails}
+export { ProfileDetails }

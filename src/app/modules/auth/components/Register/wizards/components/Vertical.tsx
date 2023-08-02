@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { KTIcon } from '../../../../../../../_metronic/helpers'
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 //import { KTIcon } from '../../../../../../../_metronic/helpers'
 import { Step1 } from './steps/Step1'
 import { Step2 } from './steps/Step2'
@@ -86,6 +88,12 @@ const Vertical = () => {
         // Call the corresponding API based on the current step index
         switch (stepper.current.currentStepIndex) {
           case 2:
+            // if (!step2Token) {
+            //   // If 'step2Token' is not available, show an error toast
+            //   toast.error('Requested Email not exists in Examination Records: Registration or Format Issue');
+            //   stepper.current.goPrev()
+            // } else {
+            //   try {
             // Step 1 API Call
             const responseStep1 = await axios.post(
               'https://amsbackend-ghub.onrender.com/registrations/verifyUniversityEmail',
@@ -95,34 +103,60 @@ const Vertical = () => {
 
             const { token } = responseStep1.data;
             setStep2Token(token); // Store the token in the state variable
-
-
+            //   } catch (error) {
+            //     // Handle any errors that might occur during the API call
+            //     console.error('Error occurred:', error);
+            //     // Optionally, show an error toast to the user
+            //     toast.error('An error occurred while fetching data');
+            //   }
+            // }
             break;
+
+
           case 3:
             // Step 2 API Call
-            const responseStep2 = await axios.post(
-              'https://amsbackend-ghub.onrender.com/registrations/getUniversityEmailTokenData',
-              { token: step2Token } // Pass the token as part of the request body
-            );
+            if (!step2Token) {
+              // If 'step2Token' is not available, show an error toast
+              toast.error('Clicked Visit Email & Verified Your Email');
+              stepper.current.goPrev()
+            } else {
+              try {
+                const responseStep2 = await axios.post(
+                  'https://amsbackend-ghub.onrender.com/registrations/getUniversityEmailTokenData',
+                  { token: step2Token } // Pass the token as part of the request body
+                );
 
-            const { id } = responseStep2.data;
-            const { cgpa } = responseStep2.data;
-            const { first_name } = responseStep2.data;
-            const { middle_name } = responseStep2.data;
-            const { last_name } = responseStep2.data;
-            const { uni_email } = responseStep2.data;
+                // Assuming the responseStep2.data is an object containing the required data
+                const {
+                  id,
+                  cgpa,
+                  first_name,
+                  middle_name,
+                  last_name,
+                  uni_email,
+                  qualification,
+                  area,
+                } = responseStep2.data;
 
-            const { qualification } = responseStep2.data;
-            const { area } = responseStep2.data;
-            setStep2Id(id); // Set the 'id' value in the state
-            setStep2Cgpa(cgpa)
-            setstep2First_name(first_name)
-            setstep2Middle_name(middle_name)
-            setstep2Last_name(last_name)
-            setstep2Uni_email(uni_email)
-            setstep2Qualification(qualification)
-            setstep2Area(area)
+                // Set the state with the response data
+                setStep2Id(id);
+                setStep2Cgpa(cgpa);
+                setstep2First_name(first_name);
+                setstep2Middle_name(middle_name);
+                setstep2Last_name(last_name);
+                setstep2Uni_email(uni_email);
+                setstep2Qualification(qualification);
+                setstep2Area(area);
 
+                // Proceed to the next step or do any further processing
+                // ...
+              } catch (error) {
+                // Handle any errors that might occur during the API call
+                console.error('Error occurred:', error);
+                // Optionally, show an error toast to the user
+                toast.error('An error occurred while fetching data');
+              }
+            }
             break;
           case 4:
             // Step 3 API Call
@@ -138,11 +172,23 @@ const Vertical = () => {
             break;
           case 5:
             // Step 4 API Call (same as Step 2)
-            const responseStep3 = await axios.post(
-              'https://amsbackend-ghub.onrender.com/registrations/getUniversityEmailTokenData',
-              { token: step2Token } // Pass the token as part of the request body
-            );
-
+            if (!step2Token) {
+              // If 'step2Token' is not available, show an error toast
+              toast.error('Clicked Visit Email & Verified Your Email');
+              stepper.current.goPrev()
+            } else {
+              try {
+                const responseStep3 = await axios.post(
+                  'https://amsbackend-ghub.onrender.com/registrations/getUniversityEmailTokenData',
+                  { token: step2Token } // Pass the token as part of the request body
+                );
+              } catch (error) {
+                // Handle any errors that might occur during the API call
+                console.error('Error occurred:', error);
+                // Optionally, show an error toast to the user
+                toast.error('An error occurred while fetching data');
+              }
+            }
             break;
           // Add more cases for additional steps if needed
           default:
